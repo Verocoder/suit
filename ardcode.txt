@@ -1,0 +1,54 @@
+/* Electric Imp-to-Arduino Serial Pipeline
+  by: Jim Lindblom
+  SparkFun Electronics
+  date: March 24, 2014
+  license: Beerware. Use, reuse, and modify this code however you see fit.
+  If you find it useful, buy me a beer some day!
+
+  This sketch is part of the Electric Imp Serial Pipeline code.
+  This is a simple, SoftwareSerial-to-hardware serial sketch.
+  Anything piped through the hardware serial port will be routed
+  out the software serial. And vice-versa for software-to-
+  hardware.
+
+  Hardware Hookup:
+  Arduino -------- Imp
+    GND ---------- GND
+    3.3V --------- 3V3
+    8 ------------  5 (Imp Tx)
+    9 ------------  7 (Imp Rx)
+  Imp also has two LEDs (optionally) tied to pins 8 and 9, which
+  indicate serial RX's and TX's. LEDs are connected to be active-
+  low (anode connected to 3.3V).
+
+  Same as shield schematic:
+http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Dev/Arduino/Shields/electric-imp-shield-v11.pdf  
+
+*/
+
+#include <SoftwareSerial.h>
+
+const int IMP_SERIAL_RX = 8;
+const int IMP_SERIAL_TX = 9;
+
+// Create an instance of software serial.
+SoftwareSerial impSerial(IMP_SERIAL_RX, IMP_SERIAL_TX);
+
+void setup()  
+{
+ // Open the hardware serial port
+  Serial.begin(19200);
+
+  // set the data rate for the SoftwareSerial port
+  impSerial.begin(19200);
+}
+
+void loop() // run over and over
+{  
+  // Send data from the software serial
+  if (impSerial.available())
+    Serial.write(impSerial.read());  // to the hardware serial
+  // Send data from the hardware serial
+  if (Serial.available())
+    impSerial.write(Serial.read());  // to the software serial
+}
